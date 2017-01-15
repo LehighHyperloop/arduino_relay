@@ -1,19 +1,19 @@
-#ifndef __SUB_LEVITATION_H_
-#define __SUB_LEVITATION_H_
+#ifndef __SUB_BRAKING_H
+#define __SUB_BRAKING_H
 
 #include "constants.h"
 #include "subsystem.h"
 #include "mqtt.h"
 
-class Levitation : public Subsystem {
+class Braking : public Subsystem {
 public:
   enum State {
-    STOPPED,
-    RUNNING
+    OFF,
+    ON
   };
   static char* State_str[];
 
-  Levitation(int levitation_pin);
+  Braking(int braking_pin);
   void update();
   void set_state(State s);
   State get_state();
@@ -22,7 +22,7 @@ public:
 
 private:
   State target_state, current_state;
-  int levitation_pin;
+  int braking_pin;
 
 };
 

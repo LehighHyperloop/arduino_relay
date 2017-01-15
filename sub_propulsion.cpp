@@ -1,29 +1,29 @@
-#include "sub_levitation.h"
+#include "sub_propulsion.h"
 
-static char* Levitation::State_str[] = {
+static char* Propulsion::State_str[] = {
   "STOPPED",
   "RUNNING"
 };
 
-Levitation::Levitation(int levitation_pin) : levitation_pin(levitation_pin) {
+Propulsion::Propulsion(int propulsion_pin) : propulsion_pin(propulsion_pin) {
   target_state = STOPPED;
   current_state = STOPPED;
 }
 
-Levitation::State Levitation::get_state() {
+Propulsion::State Propulsion::get_state() {
   return current_state;
 }
 
-void Levitation::set_state(State s) {
+void Propulsion::set_state(State s) {
   target_state = s;
 }
 
 // Main processing logic
-void Levitation::update() {
+void Propulsion::update() {
   switch (current_state) {
     case STOPPED:
       if (target_state == RUNNING) {
-        digitalWrite(levitation_pin, RELAY_ON);
+        digitalWrite(propulsion_pin, RELAY_ON);
         current_state = RUNNING;
         break;
       }
@@ -31,7 +31,7 @@ void Levitation::update() {
 
     case RUNNING:
       if (target_state == STOPPED) {
-        digitalWrite(levitation_pin, RELAY_OFF);
+        digitalWrite(propulsion_pin, RELAY_OFF);
         current_state = STOPPED;
         break;
       }
@@ -39,14 +39,14 @@ void Levitation::update() {
   }
 }
 
-void Levitation::process_msg(MQTT mqtt, char* topic, JsonObject& root) {
-  if (strncmp(topic, "subsystem/levitation", 10 + 3) != 0)
+void Propulsion::process_msg(MQTT mqtt, char* topic, JsonObject& root) {
+  if (strncmp(topic, "subsystem/propulsion", 10 + 3) != 0)
     return;
 
-  mqtt.debug("LEVITATION");
+  mqtt.debug("PROPULSION");
 }
 
-void Levitation::send_heartbeat(MQTT mqtt) {
+void Propulsion::send_heartbeat(MQTT mqtt) {
   JsonObject& root = mqtt.jsonBuffer.createObject();
 
   root["state"] = State_str[current_state];
@@ -54,5 +54,5 @@ void Levitation::send_heartbeat(MQTT mqtt) {
 
   String string_status;
   root.printTo(string_status);
-  mqtt.client.publish("subsystem/levitation", string_status.c_str());
+  mqtt.client.publish("subsystem/propulsion", string_status.c_str());
 }

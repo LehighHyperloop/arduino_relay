@@ -8,8 +8,8 @@
 class Fan : public Subsystem {
 public:
   enum State {
-    OFF,
-    ON
+    STOPPED,
+    RUNNING
   };
   static char* State_str[];
 

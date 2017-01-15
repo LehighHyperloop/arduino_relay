@@ -1,13 +1,13 @@
 #include "sub_fan.h"
 
 static char* Fan::State_str[] = {
-  "OFF",
-  "ON"
+  "STOPPED",
+  "RUNNING"
 };
 
 Fan::Fan(int fan_pin) : fan_pin(fan_pin) {
-  target_state = OFF;
-  current_state = OFF;
+  target_state = STOPPED;
+  current_state = STOPPED;
 }
 
 Fan::State Fan::get_state() {
@@ -21,18 +21,18 @@ void Fan::set_state(State s) {
 // Main processing logic
 void Fan::update() {
   switch (current_state) {
-    case OFF:
-      if (target_state == ON) {
+    case STOPPED:
+      if (target_state == RUNNING) {
         digitalWrite(fan_pin, RELAY_ON);
-        target_state = OFF;
+        current_state = RUNNING;
         break;
       }
       break;
 
-    case ON:
-      if (target_state == OFF) {
+    case RUNNING:
+      if (target_state == STOPPED) {
         digitalWrite(fan_pin, RELAY_OFF);
-        target_state = OFF;
+        current_state = STOPPED;
         break;
       }
       break;
