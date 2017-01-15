@@ -17,7 +17,7 @@ public:
   };
   static char* State_str[];
 
-  Compressor(int compressor_pin);
+  Compressor(int vfd_pin, int compressor_enable_pin, int compressor_start_pin);
   void update();
   void set_state(State s);
   State get_state();

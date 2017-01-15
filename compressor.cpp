@@ -9,6 +9,9 @@ static char* Compressor::State_str[] = {
     "COMPRESSOR_STOPPING"
 };
 
+static unsigned long startTime;
+final static unsigned long delayTime = 100; //100 ms to be safe
+
 Compressor::Compressor(int vfd_pin, int compressor_enable_pin, int compressor_start_pin) \
                        : vfd_pin(vfd_pin), compressor_enable_pin(compressor_enable_pin), \
                        compressor_start_pin(compressor_start_pin) {
@@ -33,20 +36,23 @@ void Compressor::update() {
             if(target_state == RUNNING) {
                 digitalWrite(vfd_pin, RELAY_ON);
                 current_state = VFD_STARTING;
+                startTime = millis();
                 break;
             }
             break;
         case VFD_STARTING:
-            if(target_state == RUNNING) {
+            if((target_state == RUNNING) && (millis() - startTime > delayTime) {
                 digitalWrite(compressor_enable_pin, RELAY_ON);
                 current_state = COMPRESSOR_STARTING;
+                startTime = millis();
                 break;
             }
             break;
         case COMPRESSOR_STARTING:
-            if(target_state == RUNNING) {
+            if((target_state == RUNNING) && (millis() - startTime > delayTime) {
                 digitalWrite(compressor_start_pin, RELAY_ON);
                 current_state = RUNNING;
+                startTime = millis();
                 break;
             }
             break;
@@ -55,18 +61,20 @@ void Compressor::update() {
             if(target_state == STOPPED) {
                 digitalWrite(compressor_enable_pin, RELAY_OFF);
                 current_state = COMPRESSOR_STOPPING;
+                startTime = millis();
                 break;
             }
             break;
         case COMPRESSOR_STOPPING:
-            if(target_state == STOPPED) {
+            if((target_state == STOPPED) && (millis() - startTime > delayTime) {
                 digitalWrite(vfd_pin, RELAY_OFF);
                 current_state = VFD_STOPPING;
+                startTime = millis();
                 break;
             }
             break;
         case VFD_STOPPING:
-            if(target_state == STOPPED) {
+            if((target_state == STOPPED) && (millis() - startTime > delayTime) {
                 current_state = STOPPED;
                 break;
             }
