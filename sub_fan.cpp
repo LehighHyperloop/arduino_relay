@@ -20,19 +20,19 @@ void Fan::set_state(State s) {
 
 // Main processing logic
 void Fan::update() {
-  switch (target_state) {
+  switch (current_state) {
     case OFF:
-      if (current_state == ON) {
-        digitalWrite(fan_pin, RELAY_OFF);
-        current_state == OFF;
+      if (target_state == ON) {
+        digitalWrite(fan_pin, RELAY_ON);
+        target_state = OFF;
         break;
       }
       break;
 
     case ON:
-      if (current_state == OFF) {
-        digitalWrite(fan_pin, RELAY_ON);
-        current_state == OFF;
+      if (target_state == OFF) {
+        digitalWrite(fan_pin, RELAY_OFF);
+        target_state = OFF;
         break;
       }
       break;
