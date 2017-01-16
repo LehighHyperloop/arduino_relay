@@ -30,7 +30,7 @@ void Compressor::set_state(State s) {
 
 // Main processing logic
 void Compressor::update() {
-  last_state = target_state;
+  last_state = current_state;
 
   //gnarly looking state switch, hope this is right
   switch(current_state)
