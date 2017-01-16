@@ -23,7 +23,7 @@ public:
 
 private:
   static char* m_name;
-  State target_state, current_state;
+  State target_state, current_state, last_state;
   int braking_pin;
 
 };

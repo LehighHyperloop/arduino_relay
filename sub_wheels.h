@@ -8,8 +8,9 @@
 class Wheels : public Subsystem {
 public:
   enum State {
-    STOPPED,
-    RUNNING
+    UP,
+    DOWN,
+    STATE_LENGTH
   };
   static char* State_str[];
 
@@ -22,7 +23,7 @@ public:
 
 private:
   static char* m_name;
-  State target_state, current_state;
+  State target_state, current_state, last_state;
   int wheels_pin;
 
 };

@@ -27,7 +27,7 @@ public:
 
 private:
   static char* m_name;
-  State target_state, current_state;
+  State target_state, current_state, last_state;
   int vfd_pin, compressor_enable_pin, compressor_start_pin;
 
 };
