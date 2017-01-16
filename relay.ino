@@ -2,19 +2,35 @@
 
 #include "mqtt.h"
 #include "subsystem.h"
+
+#include "sub_braking.h"
+#include "sub_compressor.h"
 #include "sub_fan.h"
+#include "sub_levitation.h"
+
 
 IPAddress server(192, 168, 0, 100);
 MQTT mqtt = MQTT(server, 1883);
 
+Braking* sub_braking = new Braking(RELAY_BASE + RELAY_BRAKING);
+Compressor* sub_compressor = new Compressor(RELAY_BASE + RELAY_VFD_ENABLE,
+                                            RELAY_BASE + RELAY_COMPRESSOR_ENABLE,
+                                            RELAY_BASE + RELAY_COMPRESSOR_START);
 Fan* sub_fan = new Fan(RELAY_BASE + RELAY_FAN_ENABLE);
+Levitation* sub_levitation = new Levitation(RELAY_BASE + RELAY_LEVITATION);
 
 Subsystem* subsystems[] = {
-  sub_fan
+  sub_braking,
+  sub_compressor,
+  sub_fan,
+  sub_levitation
 };
 
 void subscribe() {
+  mqtt.client.subscribe("subsystem/braking/#");
+  mqtt.client.subscribe("subsystem/compressor/#");
   mqtt.client.subscribe("subsystem/fan/#");
+  mqtt.client.subscribe("subsystem/levitation/#");
 }
 
 void setup()

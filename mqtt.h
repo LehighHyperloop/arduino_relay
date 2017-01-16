@@ -36,7 +36,6 @@ public:
 
   PubSubClient client;
 
-  StaticJsonBuffer<200> jsonBuffer;
   char stringBuffer[200];
 
   Subsystem** subsystems;

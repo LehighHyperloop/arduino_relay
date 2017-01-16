@@ -21,13 +21,16 @@ public:
   void update();
   void set_state(State s);
   State get_state();
-  virtual void process_msg(MQTT mqtt, char* topic, JsonObject& root);
-  virtual void send_heartbeat(MQTT mqtt);
+  virtual void process_msg(char* topic, JsonObject& root);
+  virtual void send_heartbeat();
 
 private:
+  static char* m_name;
   State target_state, current_state;
-  int compressor_pin;
+  int vfd_pin, compressor_enable_pin, compressor_start_pin;
 
 };
+
+extern MQTT mqtt;
 
 #endif

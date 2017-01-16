@@ -1,5 +1,7 @@
 #include "sub_braking.h"
 
+char* Braking::m_name = "subsystem/braking";
+
 static char* Braking::State_str[] = {
   "OFF",
   "ON"
@@ -39,20 +41,21 @@ void Braking::update() {
   }
 }
 
-void Braking::process_msg(MQTT mqtt, char* topic, JsonObject& root) {
-  if (strncmp(topic, "subsystem/braking", 10 + 3) != 0)
+void Braking::process_msg(char* topic, JsonObject& root) {
+  if (strncmp(topic, m_name, strlen(m_name)) != 0 ||
+      topic[strlen(m_name)] != '/')
     return;
 
-  mqtt.debug("BRAKING");
+  send_heartbeat();
 }
 
-void Braking::send_heartbeat(MQTT mqtt) {
-  JsonObject& root = mqtt.jsonBuffer.createObject();
+void Braking::send_heartbeat() {
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
 
   root["state"] = State_str[current_state];
   root["t_state"] = State_str[target_state];
 
-  String string_status;
-  root.printTo(string_status);
-  mqtt.client.publish("subsystem/braking", string_status.c_str());
+  root.printTo(mqtt.stringBuffer, sizeof(mqtt.stringBuffer));
+  mqtt.client.publish(m_name, mqtt.stringBuffer);
 }

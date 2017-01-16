@@ -27,7 +27,8 @@ void MQTT::loop() {
 
 void callback(char* topic, byte* payload, unsigned int length) {
   payload[length] = 0; // NULL TERMINATE HACK
-  JsonObject& root = mqtt.jsonBuffer.parseObject((char*)payload);
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject((char*)payload);
 
   for (int i = 0; i < mqtt.subsystem_count; i++) {
     (mqtt.subsystems[i])->process_msg(topic, root);

@@ -1,5 +1,7 @@
 #include "sub_compressor.h"
 
+char* Compressor::m_name = "subsystem/compressor";
+
 static char* Compressor::State_str[] = {
     "RUNNING",
     "STOPPED",
@@ -10,7 +12,6 @@ static char* Compressor::State_str[] = {
 };
 
 static unsigned long startTime;
-final static unsigned long delayTime = 100; //100 ms to be safe
 
 Compressor::Compressor(int vfd_pin, int compressor_enable_pin, int compressor_start_pin) \
                        : vfd_pin(vfd_pin), compressor_enable_pin(compressor_enable_pin), \
@@ -41,7 +42,7 @@ void Compressor::update() {
             }
             break;
         case VFD_STARTING:
-            if((target_state == RUNNING) && (millis() - startTime > delayTime) {
+            if((target_state == RUNNING) && (millis() - startTime > COMPRESSOR_DELAY_TIME)) {
                 digitalWrite(compressor_enable_pin, RELAY_ON);
                 current_state = COMPRESSOR_STARTING;
                 startTime = millis();
@@ -49,7 +50,7 @@ void Compressor::update() {
             }
             break;
         case COMPRESSOR_STARTING:
-            if((target_state == RUNNING) && (millis() - startTime > delayTime) {
+            if((target_state == RUNNING) && (millis() - startTime > COMPRESSOR_DELAY_TIME)) {
                 digitalWrite(compressor_start_pin, RELAY_ON);
                 current_state = RUNNING;
                 startTime = millis();
@@ -66,7 +67,7 @@ void Compressor::update() {
             }
             break;
         case COMPRESSOR_STOPPING:
-            if((target_state == STOPPED) && (millis() - startTime > delayTime) {
+            if((target_state == STOPPED) && (millis() - startTime > COMPRESSOR_DELAY_TIME)) {
                 digitalWrite(vfd_pin, RELAY_OFF);
                 current_state = VFD_STOPPING;
                 startTime = millis();
@@ -74,7 +75,7 @@ void Compressor::update() {
             }
             break;
         case VFD_STOPPING:
-            if((target_state == STOPPED) && (millis() - startTime > delayTime) {
+            if((target_state == STOPPED) && (millis() - startTime > COMPRESSOR_DELAY_TIME)) {
                 current_state = STOPPED;
                 break;
             }
@@ -82,20 +83,21 @@ void Compressor::update() {
     }
 }
 
-void Compressor::process_msg(MQTT mqtt, char* topic, JsonObject& root) {
-  if (strncmp(topic, "subsystem/compressor", 10 + 3) != 0)
+void Compressor::process_msg(char* topic, JsonObject& root) {
+  if (strncmp(topic, m_name, strlen(m_name)) != 0 ||
+      topic[strlen(m_name)] != '/')
     return;
 
-  mqtt.debug("COMPRESSOR");
+  send_heartbeat();
 }
 
-void Compressor::send_heartbeat(MQTT mqtt) {
-  JsonObject& root = mqtt.jsonBuffer.createObject();
+void Compressor::send_heartbeat() {
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
 
   root["state"] = State_str[current_state];
   root["t_state"] = State_str[target_state];
 
-  String string_status;
-  root.printTo(string_status);
-  mqtt.client.publish("subsystem/compressor", string_status.c_str());
+  root.printTo(mqtt.stringBuffer, sizeof(mqtt.stringBuffer));
+  mqtt.client.publish(m_name, mqtt.stringBuffer);
 }

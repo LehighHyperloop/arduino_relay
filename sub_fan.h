@@ -21,6 +21,7 @@ public:
   virtual void send_heartbeat();
 
 private:
+  static char* m_name;
   State target_state, current_state;
   int fan_pin;
 

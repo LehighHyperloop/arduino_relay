@@ -1,5 +1,7 @@
 #include "sub_fan.h"
 
+char* Fan::m_name = "subsystem/fan";
+
 static char* Fan::State_str[] = {
   "STOPPED",
   "RUNNING"
@@ -40,20 +42,20 @@ void Fan::update() {
 }
 
 void Fan::process_msg(char* topic, JsonObject& root) {
-  char* pre = "subsystem/fan";
-  if (strstr(pre, topic) - pre != 0)
-   return;
-  Serial.println("FAN");
+  if (strncmp(topic, m_name, strlen(m_name)) != 0 ||
+      topic[strlen(m_name)] != '/')
+    return;
 
   send_heartbeat();
 }
 
 void Fan::send_heartbeat() {
-  JsonObject& root = mqtt.jsonBuffer.createObject();
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
 
   root["state"] = State_str[current_state];
   root["t_state"] = State_str[target_state];
 
   root.printTo(mqtt.stringBuffer, sizeof(mqtt.stringBuffer));
-  mqtt.client.publish("subsystem/fan", mqtt.stringBuffer);
+  mqtt.client.publish(m_name, mqtt.stringBuffer);
 }
