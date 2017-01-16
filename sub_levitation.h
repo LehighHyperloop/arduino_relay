@@ -9,12 +9,13 @@ class Levitation : public Subsystem {
 public:
   enum State {
     STOPPED,
-    RUNNING
+    RUNNING,
+    STATE_LENGTH
   };
   static char* State_str[];
 
   Levitation(int levitation_pin);
-  void update();
+  virtual void update();
   void set_state(State s);
   State get_state();
   virtual void process_msg(char* topic, JsonObject& root);

@@ -9,12 +9,13 @@ class Braking : public Subsystem {
 public:
   enum State {
     OFF,
-    ON
+    ON,
+    STATE_LENGTH
   };
   static char* State_str[];
 
   Braking(int braking_pin);
-  void update();
+  virtual void update();
   void set_state(State s);
   State get_state();
   virtual void process_msg(char* topic, JsonObject& root);

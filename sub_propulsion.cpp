@@ -22,6 +22,8 @@ void Propulsion::set_state(State s) {
 
 // Main processing logic
 void Propulsion::update() {
+  last_state = current_state;
+
   switch (current_state) {
     case STOPPED:
       if (target_state == RUNNING) {
@@ -39,6 +41,10 @@ void Propulsion::update() {
       }
       break;
   }
+
+  if (last_state != current_state) {
+    send_heartbeat();
+  }
 }
 
 void Propulsion::process_msg(char* topic, JsonObject& root) {
@@ -46,11 +52,17 @@ void Propulsion::process_msg(char* topic, JsonObject& root) {
       topic[strlen(m_name)] != '/')
     return;
 
+  for (int i = 0; i < STATE_LENGTH; i++) {
+    if (strcmp(root["t_state"], State_str[i]) == 0) {
+      target_state = i;
+    }
+  }
+
   send_heartbeat();
 }
 
 void Propulsion::send_heartbeat() {
-  StaticJsonBuffer<200> jsonBuffer;
+  StaticJsonBuffer<MQTT_BUFFER_SIZE> jsonBuffer;
   JsonObject& root = jsonBuffer.createObject();
 
   root["state"] = State_str[current_state];

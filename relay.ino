@@ -12,12 +12,12 @@
 IPAddress server(192, 168, 0, 100);
 MQTT mqtt = MQTT(server, 1883);
 
-Braking* sub_braking = new Braking(RELAY_BASE + RELAY_BRAKING);
-Compressor* sub_compressor = new Compressor(RELAY_BASE + RELAY_VFD_ENABLE,
-                                            RELAY_BASE + RELAY_COMPRESSOR_ENABLE,
-                                            RELAY_BASE + RELAY_COMPRESSOR_START);
-Fan* sub_fan = new Fan(RELAY_BASE + RELAY_FAN_ENABLE);
-Levitation* sub_levitation = new Levitation(RELAY_BASE + RELAY_LEVITATION);
+Braking* sub_braking = new Braking(RELAY_BRAKING);
+Compressor* sub_compressor = new Compressor(RELAY_VFD_ENABLE,
+                                            RELAY_COMPRESSOR_ENABLE,
+                                            RELAY_COMPRESSOR_START);
+Fan* sub_fan = new Fan(RELAY_FAN_ENABLE);
+Levitation* sub_levitation = new Levitation(RELAY_LEVITATION);
 
 Subsystem* subsystems[] = {
   sub_braking,
@@ -55,6 +55,11 @@ void setup()
   Serial.println();
   delay(50);
 
+  for (int i = 2; i < 10; i++) {
+    pinMode(i, OUTPUT);
+    digitalWrite(i, RELAY_OFF);
+  }
+
 	mqtt.init();
   mqtt.set_subscribe_callback(subscribe);
   mqtt.set_subsystems(subsystems, sizeof(subsystems)/sizeof(Subsystem*));
@@ -68,13 +73,8 @@ void loop()
 {
 	mqtt.loop();
 
-  /*
-  JsonObject& root = mqtt.jsonBuffer.createObject();
-  root["unit"] = "F";
-  root["data"] = 73;
-
-  String string_status;
-  root.printTo(string_status);
-  mqtt.client.publish("sensor/front/temp", string_status.c_str());
-  */
+  // Update all items
+  for (int i = 0; i < mqtt.subsystem_count; i++) {
+    (mqtt.subsystems[i])->update();
+  }
 }

@@ -13,12 +13,13 @@ public:
     VFD_STARTING,
     VFD_STOPPING,
     COMPRESSOR_STARTING,
-    COMPRESSOR_STOPPING
+    COMPRESSOR_STOPPING,
+    STATE_LENGTH
   };
   static char* State_str[];
 
   Compressor(int vfd_pin, int compressor_enable_pin, int compressor_start_pin);
-  void update();
+  virtual void update();
   void set_state(State s);
   State get_state();
   virtual void process_msg(char* topic, JsonObject& root);

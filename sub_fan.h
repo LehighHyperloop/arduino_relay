@@ -9,12 +9,13 @@ class Fan : public Subsystem {
 public:
   enum State {
     STOPPED,
-    RUNNING
+    RUNNING,
+    STATE_LENGTH
   };
   static char* State_str[];
 
   Fan(int fan_pin);
-  void update();
+  virtual void update();
   void set_state(State s);
   State get_state();
   virtual void process_msg(char* topic, JsonObject& root);
@@ -22,7 +23,7 @@ public:
 
 private:
   static char* m_name;
-  State target_state, current_state;
+  State target_state, current_state, last_state;
   int fan_pin;
 
 };
