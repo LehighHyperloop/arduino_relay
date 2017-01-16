@@ -3,12 +3,10 @@
 
 #include <ArduinoJson.h>
 
-class MQTT;
-
 class Subsystem {
   public:
-    virtual void process_msg(MQTT mqtt, char* topic, JsonObject& root);
-    virtual void send_heartbeat(MQTT mqtt);
+    virtual void process_msg(char* topic, JsonObject& root) {};
+    virtual void send_heartbeat() {};
 };
 
 #endif

@@ -39,20 +39,21 @@ void Fan::update() {
   }
 }
 
-void Fan::process_msg(MQTT mqtt, char* topic, JsonObject& root) {
-  if (strncmp(topic, "subsystem/fan", 10 + 3) != 0)
-    return;
+void Fan::process_msg(char* topic, JsonObject& root) {
+  char* pre = "subsystem/fan";
+  if (strstr(pre, topic) - pre != 0)
+   return;
+  Serial.println("FAN");
 
-  mqtt.debug("FAN");
+  send_heartbeat();
 }
 
-void Fan::send_heartbeat(MQTT mqtt) {
+void Fan::send_heartbeat() {
   JsonObject& root = mqtt.jsonBuffer.createObject();
 
   root["state"] = State_str[current_state];
   root["t_state"] = State_str[target_state];
 
-  String string_status;
-  root.printTo(string_status);
-  mqtt.client.publish("subsystem/fan", string_status.c_str());
+  root.printTo(mqtt.stringBuffer, sizeof(mqtt.stringBuffer));
+  mqtt.client.publish("subsystem/fan", mqtt.stringBuffer);
 }

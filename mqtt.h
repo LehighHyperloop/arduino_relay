@@ -17,17 +17,13 @@ private:
   String hostname;
   String debug_topic;
 
-  static void callback(char* topic, byte* payload, unsigned int length);
   void reconnect();
 
   unsigned long lastHeartbeat;
 
-  void send_heartbeat();
   void recv_set();
 
   void (*func_subscribe_callback)(void);
-  Subsystem** subsystems;
-  int subsystem_count;
 
 public:
   MQTT(IPAddress server, int port);
@@ -41,7 +37,13 @@ public:
   PubSubClient client;
 
   StaticJsonBuffer<200> jsonBuffer;
+  char stringBuffer[200];
+
+  Subsystem** subsystems;
+  int subsystem_count;
 };
+
+static void callback(char* topic, byte* payload, unsigned int length);
 
 extern MQTT mqtt;
 

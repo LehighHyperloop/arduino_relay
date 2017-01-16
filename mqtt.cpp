@@ -6,7 +6,7 @@ MQTT::MQTT(IPAddress server, int port) : server(server), port(port), func_subscr
 
 void MQTT::init() {
   client.setServer(server, port);
-  client.setCallback(MQTT::callback);
+  client.setCallback(callback);
   Bridge.begin();
 
   Process p;
@@ -22,19 +22,15 @@ void MQTT::loop() {
     reconnect();
   }
 
-  if (millis() - lastHeartbeat > HEARTBEAT_INTERVAL) {
-    // Send heartbeat of current state
-    send_heartbeat();
-  }
-
   client.loop();
 }
 
-static void MQTT::callback(char* topic, byte* payload, unsigned int length) {
+void callback(char* topic, byte* payload, unsigned int length) {
   payload[length] = 0; // NULL TERMINATE HACK
   JsonObject& root = mqtt.jsonBuffer.parseObject((char*)payload);
+
   for (int i = 0; i < mqtt.subsystem_count; i++) {
-    mqtt.subsystems[i]->process_msg(mqtt, topic, root);
+    (mqtt.subsystems[i])->process_msg(topic, root);
   }
 }
 
@@ -65,10 +61,4 @@ void MQTT::set_subscribe_callback(void (*callback)(void)) {
 void MQTT::set_subsystems(Subsystem* s[], int c) {
   subsystems = s;
   subsystem_count = c;
-}
-
-void MQTT::send_heartbeat() {
-  for (int i = 0; i < mqtt.subsystem_count; i++) {
-    mqtt.subsystems[i]->send_heartbeat(mqtt);
-  }
 }
