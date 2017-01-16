@@ -7,6 +7,7 @@
 #include "sub_compressor.h"
 #include "sub_fan.h"
 #include "sub_levitation.h"
+#include "sub_wheels.h"
 
 
 IPAddress server(192, 168, 0, 100);
@@ -18,12 +19,14 @@ Compressor* sub_compressor = new Compressor(RELAY_VFD_ENABLE,
                                             RELAY_COMPRESSOR_START);
 Fan* sub_fan = new Fan(RELAY_FAN_ENABLE);
 Levitation* sub_levitation = new Levitation(RELAY_LEVITATION);
+Wheels* sub_wheels = new Wheels(RELAY_AUX_WHEELS);
 
 Subsystem* subsystems[] = {
   sub_braking,
   sub_compressor,
   sub_fan,
-  sub_levitation
+  sub_levitation,
+  sub_wheels
 };
 
 void subscribe() {
@@ -31,6 +34,7 @@ void subscribe() {
   mqtt.client.subscribe("subsystem/compressor/#");
   mqtt.client.subscribe("subsystem/fan/#");
   mqtt.client.subscribe("subsystem/levitation/#");
+  mqtt.client.subscribe("subsystem/wheels/#");
 }
 
 void setup()
