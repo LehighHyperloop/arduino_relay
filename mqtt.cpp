@@ -1,7 +1,7 @@
 #include "mqtt.h"
 
 MQTT::MQTT(IPAddress server, int port) : server(server), port(port), func_subscribe_callback(NULL) {
-  client.setClient(yun);
+    client.setClient(yun);
 }
 
 void MQTT::init() {
@@ -13,8 +13,11 @@ void MQTT::init() {
   p.runShellCommand("hostname");
   hostname += "arduino-";
   hostname += p.readString();
+  hostname.replace('\n','\0');
+  hostname = String(hostname.c_str()); //filthy hack lol
 
   debug_topic = "arduino/" + hostname;
+  receiver.init(hostname);
 }
 
 void MQTT::loop() {
@@ -26,40 +29,38 @@ void MQTT::loop() {
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
-  payload[length] = 0; // NULL TERMINATE HACK
-  StaticJsonBuffer<MQTT_BUFFER_SIZE> jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject((char*)payload);
+    payload[length] = 0; // NULL TERMINATE HACK
+    StaticJsonBuffer<MQTT_BUFFER_SIZE> jsonBuffer;
+    JsonObject& root = jsonBuffer.parseObject((char*)payload);
 
-  for (int i = 0; i < mqtt.subsystem_count; i++) {
-    (mqtt.subsystems[i])->process_msg(topic, root);
-  }
+    mqtt.receiver.process_msg(topic, root);
 }
 
 void MQTT::reconnect() {
-  // Loop until we're reconnected
-  while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    // Attempt to connect
-    if (client.connect(hostname.c_str())) {
-      Serial.println("connected");
+    // Loop until we're reconnected
+    while (!client.connected())
+    {
+        Serial.print("Attempting MQTT connection...");
+        // Attempt to connect
+        if (client.connect(hostname.c_str()))
+        {
+            Serial.println("connected");
 
-      if (func_subscribe_callback != NULL) {
-        func_subscribe_callback();
-      }
-    } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 1 seconds");
-      delay(1000);
+            if (func_subscribe_callback != NULL)
+            {
+              func_subscribe_callback();
+            }
+        }
+        else
+        {
+            Serial.print("failed, rc=");
+            Serial.print(client.state());
+            Serial.println(" try again in 1 seconds");
+            delay(1000);
+        }
     }
-  }
 }
 
 void MQTT::set_subscribe_callback(void (*callback)(void)) {
   func_subscribe_callback = callback;
-}
-
-void MQTT::set_subsystems(Subsystem* s[], int c) {
-  subsystems = s;
-  subsystem_count = c;
 }

@@ -2,12 +2,13 @@
 #define __MQTT_H__
 
 #include "constants.h"
-#include "subsystem.h"
+#include "receiver.h"
 
 #include <ArduinoJson.h>
 #include <Bridge.h>
 #include <BridgeClient.h>
 #include <PubSubClient.h>
+
 
 class MQTT {
 private:
@@ -30,16 +31,10 @@ public:
   void init();
   void loop();
   void set_subscribe_callback(void (*callback)(void));
-  void set_subsystems(Subsystem* s[], int c);
-
   void debug(char* str) { client.publish(debug_topic.c_str(), str); }
-
   PubSubClient client;
-
   char stringBuffer[200];
-
-  Subsystem** subsystems;
-  int subsystem_count;
+  Receiver receiver;
 };
 
 static void callback(char* topic, byte* payload, unsigned int length);
