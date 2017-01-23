@@ -13,7 +13,6 @@ MQTT mqtt = MQTT(server, 1883);
 void subscribe()
 {
   mqtt.client.subscribe(mqtt.receiver.fullPrefix.c_str());
-  mqtt.debug((char*)mqtt.receiver.fullPrefix.c_str());
 }
 
 void setup()
