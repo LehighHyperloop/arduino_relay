@@ -16,7 +16,7 @@ void MQTT::init() {
   hostname.replace('\n','\0');
   hostname = String(hostname.c_str()); //filthy hack lol
 
-  debug_topic = "arduino/" + hostname;
+  debug_topic = "debug/" + hostname;
   receiver.init(hostname);
 }
 
